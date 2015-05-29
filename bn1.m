@@ -51,4 +51,65 @@ bnet.CPD{W} = tabular_CPD(bnet, W, [1 0.1 0.1 0.01 0 0.9 0.9 0.99]);
 % Inference
 %-------------------------------------------------------------------------%
 
+% choose an inference engine
+engine = jtree_inf_engine(bnet);    % junction tree inference is exact
+
+% define some evidence
+evidence = cell(1,N);       % evidence is that variable 'Wet' is
+evidence{W} = 2;            % observed to be in state 2 (true)
+% an equivalent potentially more transperant way to say this is 
+% evidence{2}=2                           
+
+% feed the evidence into the engine
+[engine, ~] = enter_evidence(engine, evidence);
+
+%engine is an updated form of the engine which now incorporates the
+%evidence and the ~ is the (unused) log-likelihood of the evidence
+
+% compute the probability that the sprinkler is on given that the grass is
+% wet
+
+marg = marginal_nodes(engine, S);   % compute the marginal distribution of
+                                    % the variable S 
+p_g = marg.T; % define p as the prob the sprinkler is on
+
+fprintf('P(Srinkler=on|Grass=wet) = %f\n',p_g(2));
+
+% compute the probability given the additional evidence that it is raining
+evidence{R} = 2;
+[engine, loglik] = enter_evidence(engine, evidence);
+marg = marginal_nodes(engine, S);
+p_gr = marg.T;
+
+fprintf('P(Srinkler=on|Grass=wet,Raining=true) = %f\n',p_gr(2));
+
+% visualise the probability distributions with and evidence on raining
+figure;
+subplot(1,2,1), bar(p_g);
+title('Given grass wet'), axis([0.5,2.5,0,1]);
+subplot(1,2,2), bar(p_gr);
+title('Given grass wet and raining'), axis([0.5,2.5,0,1]);
+close
+
+%-------------------------------------------------------------------------%
+% Joint distributions
+%-------------------------------------------------------------------------%
+
+evidence = cell(1,N);   % reset evidence
+[engine, ~] = enter_evidence(engine, evidence);
+m = marginal_nodes(engine, [S R W]);    % marginal distributions of S, R, W
+
+% examples of looking up values in the joint distribution
+fprintf('P(Sprinkler=off,Raining=false,Grass=wet) = %f\n',m.T(1,1,2));
+fprintf('P(Sprinkler=on,Raining=false,Grass=wet) = %f\n',m.T(2,1,2));
+
+% update the evidence due to observation that Raining=true
+evidence{R} = 2;
+[engine, ~] = enter_evidence(engine, evidence);
+m = marginal_nodes(engine, [S R W], 1); % the 1 needs to be added to get 
+                                        % the full table of values
+
+% look at the same examples
+fprintf('P(Sprinkler=off,Raining=false,Grass=wet|Raining=true) = %f\n',m.T(1,1,2));
+fprintf('P(Sprinkler=on,Raining=false,Grass=wet|Raining=true) = %f\n',m.T(2,1,2));
 
