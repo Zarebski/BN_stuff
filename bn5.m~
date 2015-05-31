@@ -19,7 +19,7 @@ bnet.CPD{R} = tabular_CPD(bnet, R, [0.8 0.2 0.2 0.8]);
 bnet.CPD{S} = tabular_CPD(bnet, S, [0.5 0.9 0.5 0.1]);
 bnet.CPD{W} = tabular_CPD(bnet, W, [1 0.1 0.1 0.01 0 0.9 0.9 0.99]);
 
-nsamples = 10^2;    % define the number of samples to make
+nsamples = 10^3;    % define the number of samples to make
 samples = cell(N,nsamples); % preallocate a cell array for the sample data
                             % each row of the array corresponds to an
                             % observation
@@ -52,10 +52,7 @@ max_iter = 10;                      % specify max number of iterations
 % produce a plot of the change in log-likelihood as as the number of
 % iterations of the EM algorithm increases
 plot(LLtrace, 'x-');
-title('Log-likelihood of the observations');
-xlabel('Number of iterations');
-ylabel('Log-likelihood');
-
+title('Log-li')
 
 
 
