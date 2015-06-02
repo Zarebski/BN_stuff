@@ -1,4 +1,3 @@
-
 n = 5; 				% A and B take values 1,...,n
 N = 3; 				% the number of nodes
 dag = zeros(N, N); 	% preallocat the adj-matrix
@@ -8,7 +7,7 @@ dag([A B], C) = 1; 	% add arcs to out graph
 draw_graph(dag, {'A','B','C'}); % produce a figure of the DAG
 
 discrete_nodes = 1:N; 	% list of the discrete nodes
-node_sizes = [n n 2] 	% list of the number of states
+node_sizes = [n n 2]; 	% list of the number of states
 
 % use mk_bnet to make the BN
 bnet = mk_bnet(dag, node_sizes, 'discrete', discrete_nodes); 
@@ -23,12 +22,12 @@ for i = 1:n
 	for j = 1:n
 		if i + j == n
 			% constraint is satisfied
-			Ccpt(i,j,1) = 0 	% since 1 is false
-			Ccpt(i,j,2) = 1 	% and 2 is true in bnt
+			Ccpt(i,j,1) = 0; 	% since 1 is false
+			Ccpt(i,j,2) = 1; 	% and 2 is true in bnt
 		else
 			% constraint is not satisfied 
-			Ccpt(i,j,1) = 1 	
-			Ccpt(i,j,2) = 0
+			Ccpt(i,j,1) = 1; 	
+			Ccpt(i,j,2) = 0;
 		end
 	end
 end
@@ -38,8 +37,11 @@ bnet.CPD{C} = tabular_CPD(bnet, C, 'CPT', Ccpt);
 engine = jtree_inf_engine(bnet); % junction tree inference is exact
 
 % produce a visualisation of the prior joint distribution of A and B 
-m = marginal_nodes(engine, [A B]);
-disp(m);
+evidence = cell(1,N);
+[engine, ~] = enter_evidence(engine, evidence);
+m = marginal_nodes(engine, [A,B]);
+fprintf('The prior joint distribution of A and B\n');
+disp(m.T);
 
 % instantiate C to reflect constraint being satisfied
 evidence{C} = 2; 	
@@ -47,4 +49,5 @@ evidence{C} = 2;
 
 % produce a visualisation of the posterior joint distribution of A and B 
 m = marginal_nodes(engine, [A B]);
-disp(m);
+fprintf('The posterior joint distribution of A and B\n');
+disp(m.T);
